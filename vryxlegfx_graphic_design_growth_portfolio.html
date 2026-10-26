@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vryxlegfx — High-CTR Roblox GFX & 3D Visuals</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090a0f',
+                        glassPanel: 'rgba(17, 20, 29, 0.75)',
+                        glassCard: 'rgba(23, 27, 40, 0.85)',
+                        accentOrange: '#ff6b00',
+                        accentPurple: '#a855f7',
+                        accentGlow: 'rgba(255, 107, 0, 0.25)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090a0f;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-header {
+            background: rgba(9, 10, 15, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(18, 22, 33, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 107, 0, 0.4);
+            box-shadow: 0 0 25px rgba(255, 107, 0, 0.2);
+        }
+
+        /* Glow effects */
+        .glow-orange {
+            text-shadow: 0 0 12px rgba(255, 107, 0, 0.6);
+        }
+        .glow-purple {
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+        }
+
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f293d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff6b00;
+        }
+
+        /* Before/After Split Comparison Slider */
+        .ba-container {
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        .ba-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            overflow: hidden;
+            border-right: 3px solid #ff6b00;
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.6);
+        }
+
+        /* Audio Visualizer Waves */
+        .bar {
+            width: 3px;
+            height: 12px;
+            background-color: #ff6b00;
+            border-radius: 2px;
+            animation: bounce 1.2s ease-in-out infinite alternate;
+        }
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        .bar:nth-child(4) { animation-delay: 0.1s; }
+        .paused .bar { animation-play-state: paused; height: 4px; }
+
+        @keyframes bounce {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-grid-pattern relative pb-28">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Background Ambient Glow Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="fixed top-[40%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <!-- HEADER & NAVIGATION -->
+    <header class="glass-header fixed top-0 left-0 right-0 z-40 px-4 lg:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            
+            <!-- Logo / Brand Title -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 via-purple-600 to-pink-500 p-0.5 shadow-lg shadow-orange-500/20 group-hover:scale-105 transition duration-300">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-gamepad text-orange-500 text-lg group-hover:rotate-12 transition duration-300"></i>
+                    </div>
+                </div>
+                <span class="font-black text-2xl tracking-wider text-white font-mono flex items-center gap-1">
+                    vryxlegfx<span class="text-orange-500 animate-pulse">.</span>
+                </span>
+            </a>
+
+            <!-- Desktop Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold tracking-wider uppercase font-mono">
+                <a href="#sale" class="text-orange-400 hover:text-orange-300 transition flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                    <span>🎃 Halloween Sale</span>
+                </a>
+                <a href="#work" class="text-gray-300 hover:text-white transition">Selected Work</a>
+                <a href="#casestudy" class="text-gray-300 hover:text-white transition">Case Study</a>
+                <a href="#reviews" class="text-gray-300 hover:text-white transition">Client Reviews</a>
+                <a href="#contact" class="text-gray-300 hover:text-white transition">Contact</a>
+            </nav>
+
+            <!-- Discord Quick Action -->
+            <div class="flex items-center gap-3">
+                <button onclick="copyDiscord()" class="bg-gradient-to-r from-orange-500 to-purple-600 hover:opacity-90 text-black font-extrabold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-orange-500/20 transition transform active:scale-95">
+                    <i class="fa-brands fa-discord text-sm"></i>
+                    <span class="hidden sm:inline">Discord: @vryxlegfx</span>
+                    <span class="sm:hidden">Discord</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="pt-28 max-w-7xl mx-auto px-4 lg:px-8 space-y-20 w-full">
+
+        <!-- HERO SECTION -->
+        <section class="text-center space-y-6 pt-6 sm:pt-12 relative">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-mono font-bold tracking-widest uppercase shadow-lg shadow-orange-500/10">
+                <i class="fa-solid fa-fire text-orange-500"></i> Roblox CTR & GFX Specialist
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-none max-w-4xl mx-auto">
+                Crafting visual hooks for <br class="hidden sm:block">
+                <span class="bg-gradient-to-r from-orange-400 via-purple-400 to-pink-500 bg-clip-text text-transparent glow-orange">
+                    top game experiences.
+                </span>
+            </h1>
+
+            <p class="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto font-normal leading-relaxed">
+                3D Digital Graphic Designer specializing in high-contrast Roblox thumbnails, visual hierarchy optimization, and CTR performance testing.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <a href="#sale" class="bg-orange-500 hover:bg-orange-400 text-black font-black px-6 py-3.5 rounded-2xl text-xs font-mono uppercase tracking-wider shadow-lg shadow-orange-500/25 transition transform hover:-translate-y-0.5">
+                    View Halloween Deals
+                </a>
+                <a href="#work" class="glass-card hover:bg-gray-800 text-white font-bold px-6 py-3.5 rounded-2xl text-xs font-mono uppercase tracking-wider border border-gray-700 transition">
+                    Explore Gallery
+                </a>
+            </div>
+
+            <!-- Quick Live Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto pt-8">
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <span class="block text-2xl font-black text-orange-400 font-mono">150M+</span>
+                    <span class="text-[10px] text-gray-400 font-mono uppercase">Game Impressions</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <span class="block text-2xl font-black text-purple-400 font-mono">250+</span>
+                    <span class="text-[10px] text-gray-400 font-mono uppercase">Thumbnails Rendered</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <span class="block text-2xl font-black text-emerald-400 font-mono">15%+</span>
+                    <span class="text-[10px] text-gray-400 font-mono uppercase">Avg. CTR Boost</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <span class="block text-2xl font-black text-pink-400 font-mono">100%</span>
+                    <span class="text-[10px] text-gray-400 font-mono uppercase">Client Rating</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING / HALLOWEEN SALE SECTION -->
+        <section id="sale" class="space-y-8 scroll-mt-28">
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center gap-2 text-xs font-mono font-bold text-orange-500 uppercase tracking-widest">
+                    <i class="fa-solid fa-ghost"></i> Limited Time Offer
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">🎃 HALLOWEEN SALE 🎃</h2>
+                <p class="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">Discounted bundle rates for high-converting Roblox game marketing assets.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                
+                <!-- Starter Pack Card -->
+                <div class="glass-card rounded-3xl p-6 sm:p-8 relative border-2 border-orange-500/30 hover:border-orange-500 transition-all duration-300 flex flex-col justify-between space-y-6">
+                    <div class="absolute -top-3 right-6 bg-orange-500 text-black font-black text-[10px] uppercase font-mono px-3 py-1 rounded-full shadow-lg">
+                        SAVE 10%
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 text-xl">
+                                🎯
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-extrabold text-white">Starter Pack</h3>
+                                <p class="text-xs text-gray-400 font-mono">1 Thumbnail + 1 Icon</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 font-mono">
+                            <div class="text-3xl font-black text-white">$40 USD <span class="text-sm font-normal text-gray-400">or R$13,000</span></div>
+                            <p class="text-xs text-gray-500 line-through">Originally $45 USD or R$15,000 (inc tax)</p>
+                        </div>
+
+                        <ul class="space-y-2 text-xs text-gray-300 pt-2 border-t border-gray-800">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-orange-400"></i> High-Contrast 3D Render</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-orange-400"></i> High-Resolution Game Icon</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-orange-400"></i> 48-Hour Turnaround</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-orange-400"></i> 2 Free Revision Passes</li>
+                        </ul>
+                    </div>
+
+                    <button onclick="claimOffer('Starter Pack')" class="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-xs font-mono uppercase tracking-wider rounded-xl shadow-lg shadow-orange-500/20 transition">
+                        Claim Starter Pack
+                    </button>
+                </div>
+
+                <!-- Creator Bundle Card -->
+                <div class="glass-card rounded-3xl p-6 sm:p-8 relative border-2 border-purple-500/30 hover:border-purple-500 transition-all duration-300 flex flex-col justify-between space-y-6">
+                    <div class="absolute -top-3 right-6 bg-purple-500 text-white font-black text-[10px] uppercase font-mono px-3 py-1 rounded-full shadow-lg">
+                        SAVE 30%
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
+                                🚀
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-extrabold text-white">Creator Bundle</h3>
+                                <p class="text-xs text-gray-400 font-mono">3 Thumbnails + 1 Rescaled Icon</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 font-mono">
+                            <div class="text-3xl font-black text-white">$75 USD <span class="text-sm font-normal text-gray-400">or R$25,000</span></div>
+                            <p class="text-xs text-gray-500 line-through">Originally $90 USD or R$35,000 (inc tax)</p>
+                        </div>
+
+                        <ul class="space-y-2 text-xs text-gray-300 pt-2 border-t border-gray-800">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-400"></i> 3 Main A/B Game Thumbnails</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-400"></i> Optimized Matching Square Icon</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-400"></i> Priority 24-Hour Delivery</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-400"></i> Full PSD Source File Handover</li>
+                        </ul>
+                    </div>
+
+                    <button onclick="claimOffer('Creator Bundle')" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white font-black text-xs font-mono uppercase tracking-wider rounded-xl shadow-lg shadow-purple-500/20 transition">
+                        Claim Creator Bundle
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SELECTED WORK SECTION -->
+        <section id="work" class="space-y-8 scroll-mt-28">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+                <div>
+                    <span class="text-xs font-mono text-orange-400 uppercase tracking-widest font-bold">Featured Showcase</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Selected Work <span class="text-xs font-normal text-gray-400 font-mono">(Click to Enlarge)</span></h2>
+                </div>
+                <div class="text-xs font-mono text-gray-400">
+                    Showing <span class="text-orange-400 font-bold" id="grid-count">6</span> High-CTR Assets
+                </div>
+            </div>
+
+            <!-- Thumbnail Grid -->
+            <div id="work-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Grid items rendered via JavaScript -->
+            </div>
+        </section>
+
+        <!-- CASE STUDY / POLISH PASS (BEFORE/AFTER SLIDER) -->
+        <section id="casestudy" class="space-y-8 scroll-mt-28">
+            <div class="text-center space-y-2">
+                <span class="text-xs font-mono text-purple-400 uppercase tracking-widest font-bold">Interactive Showcase</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Case Study / Polish Pass</h2>
+                <p class="text-xs sm:text-sm text-gray-400 max-w-lg mx-auto">Drag the interactive visual slider to compare unlit 3D base geometry against fully post-processed and lit composited thumbnails.</p>
+            </div>
+
+            <div class="glass-card rounded-3xl p-4 sm:p-6 max-w-4xl mx-auto border border-gray-800">
+                <div class="ba-container w-full h-[280px] sm:h-[450px] rounded-2xl relative overflow-hidden">
+                    <!-- Final Render Image -->
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover" alt="Final Polish Render">
+                    
+                    <!-- Overlay Draft Render Image -->
+                    <div id="ba-overlay-box" class="ba-overlay">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover max-w-none w-[1000px]" id="ba-draft-img" alt="Raw 3D Base Render">
+                    </div>
+
+                    <!-- Range Input Control -->
+                    <input type="range" min="0" max="100" value="50" id="case-slider" oninput="handleSplitSlider(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20">
+
+                    <!-- Floating Badges -->
+                    <div class="absolute top-4 left-4 bg-slate-950/80 text-[10px] font-mono text-gray-300 px-3 py-1.5 rounded-full backdrop-blur-md border border-gray-700 pointer-events-none">
+                        Raw 3D Geometry
+                    </div>
+                    <div class="absolute top-4 right-4 bg-orange-950/80 text-[10px] font-mono text-orange-400 px-3 py-1.5 rounded-full backdrop-blur-md border border-orange-500/30 pointer-events-none">
+                        Final Polish Pass
+                    </div>
+
+                    <!-- Slider Handle Indicator -->
+                    <div id="slider-handle" class="absolute top-0 bottom-0 left-1/2 w-8 -ml-4 flex items-center justify-center pointer-events-none z-10">
+                        <div class="w-8 h-8 rounded-full bg-orange-500 text-black flex items-center justify-center text-xs font-bold shadow-lg shadow-orange-500/50">
+                            ↔
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLIENT REVIEWS SECTION -->
+        <section id="reviews" class="space-y-8 scroll-mt-28">
+            <div class="text-center space-y-2">
+                <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest font-bold">Vouched Reputation</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Client Reviews</h2>
+                <p class="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">Feedback from Roblox studio leads, game directors, and verified clients.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Review 1 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 border border-gray-800 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-r from-orange-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                                    AD
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">@Accursed_Dev</h4>
+                                    <span class="text-[10px] text-gray-500 font-mono">OddWorks Studio</span>
+                                </div>
+                            </div>
+                            <div class="text-amber-400 text-xs flex gap-0.5">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-relaxed italic">
+                            "Keep doing what you're doing! The price point is fantastic for the level of quality provided, and the entire workflow felt smooth and professional..."
+                        </p>
+                    </div>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full w-fit">Verified Client</span>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 border border-gray-800 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                                    TR
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">tdmrylenreal</h4>
+                                    <span class="text-[10px] text-gray-500 font-mono">racks.gg</span>
+                                </div>
+                            </div>
+                            <div class="text-amber-400 text-xs flex gap-0.5">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-relaxed italic">
+                            "Super fast delivery times, very reasonable pricing, and clear communication throughout. The thumbnail CTR surged right after launch."
+                        </p>
+                    </div>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full w-fit">Verified Client</span>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 border border-gray-800 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
+                                    UK
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">@uhkinz</h4>
+                                    <span class="text-[10px] text-gray-500 font-mono">Game Lead</span>
+                                </div>
+                            </div>
+                            <div class="text-amber-400 text-xs flex gap-0.5">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-relaxed italic">
+                            "Created 2 thumbnails and a game icon that turned out completely production-ready. Lighting and scene composition were top tier."
+                        </p>
+                    </div>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full w-fit">Verified Client</span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONTACT / CALL TO ACTION -->
+        <section id="contact" class="glass-card rounded-3xl p-8 sm:p-12 text-center space-y-6 border border-orange-500/30 relative overflow-hidden scroll-mt-28">
+            <div class="max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-mono text-orange-400 font-bold uppercase tracking-widest">Get In Touch</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white">Let's build something spooky & great.</h2>
+                <p class="text-gray-400 text-xs sm:text-sm">Currently available for freelance opportunities and studio retainer commissions.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                <button onclick="copyDiscord()" class="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-500 to-purple-600 hover:opacity-90 text-black font-extrabold text-xs font-mono uppercase tracking-wider shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-discord text-base"></i>
+                    <span>Copy Discord: @vryxlegfx</span>
+                </button>
+                <a href="mailto:contact@vryxlegfx.com" class="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs font-mono uppercase tracking-wider transition border border-gray-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Send Email</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LIGHTBOX MODAL WITH WATERMARK -->
+    <div id="lightbox-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="relative max-w-5xl w-full flex flex-col items-center">
+            
+            <!-- Close Button -->
+            <button onclick="closeLightbox()" class="absolute -top-12 right-0 text-gray-400 hover:text-white text-2xl p-2 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Image View with Watermark -->
+            <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-slate-950 shadow-2xl max-h-[80vh]">
+                <img id="lightbox-img" src="" alt="Thumbnail Lightbox" class="w-full max-h-[75vh] object-contain">
+                
+                <!-- vryxlegfx Watermark Overlay -->
+                <div class="absolute bottom-4 right-4 pointer-events-none select-none opacity-40 font-mono text-sm sm:text-lg font-black tracking-widest text-white/80 bg-black/50 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/10">
+                    WATERMARK • vryxlegfx
+                </div>
+            </div>
+
+            <!-- Title & Details below Modal -->
+            <div class="mt-4 text-center space-y-1">
+                <h3 id="lightbox-title" class="text-lg font-bold text-white">Project Title</h3>
+                <p id="lightbox-game" class="text-xs text-orange-400 font-mono">Roblox Game Thumbnail</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FLOATING BACKGROUND MUSIC PLAYER DOCK -->
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-md w-[92%] sm:w-full glass-card rounded-2xl p-3 border border-orange-500/30 flex items-center justify-between gap-3 shadow-2xl">
+        
+        <!-- Album Art / Track Info -->
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-music text-orange-400 text-sm"></i>
+            </div>
+            <div class="min-w-0">
+                <h5 class="text-xs font-bold text-white truncate">Cyber Spooky Vibes (Ambient)</h5>
+                <span class="text-[10px] text-gray-400 font-mono block truncate">vryxlegfx • Background Chill</span>
+            </div>
+        </div>
+
+        <!-- Audio Visualizer Waves -->
+        <div id="visualizer" class="hidden sm:flex items-center gap-1 paused px-2">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+        <!-- Play Controls -->
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="toggleAudio()" id="play-btn" class="w-9 h-9 rounded-xl bg-orange-500 hover:bg-orange-400 text-black flex items-center justify-center font-bold text-sm transition">
+                <i class="fa-solid fa-play"></i>
+            </button>
+            <input type="range" min="0" max="100" value="70" id="volume-control" oninput="adjustVolume(this.value)" class="w-16 accent-orange-500 hidden sm:block cursor-pointer">
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-20 border-t border-gray-800/80 py-8 text-center text-xs text-gray-500 font-mono">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                © 2026 <span class="text-white font-bold">vryxlegfx</span> Graphic Design & Growth Portfolio. All rights reserved.
+            </div>
+            <div class="flex items-center gap-4 text-gray-400">
+                <a href="#sale" class="hover:text-orange-400 transition">Sale</a>
+                <span>•</span>
+                <a href="#work" class="hover:text-orange-400 transition">Work</a>
+                <span>•</span>
+                <span onclick="copyDiscord()" class="hover:text-orange-400 cursor-pointer">Discord</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audio Element (Synthesizer/Ambient Sound Fallback) -->
+    <audio id="bg-audio" loop preload="none">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- JavaScript Data & Logic -->
+    <script>
+        // Roblox Game Thumbnail Projects Dataset
+        const projects = [
+            {
+                id: '1',
+                title: 'Baddie Duels — Season 2 Launch',
+                game: 'Baddie Duels',
+                image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop',
+                ctr: '+18.4% CTR'
+            },
+            {
+                id: '2',
+                title: 'Super Head Soccer — World Cup Event',
+                game: 'Super Head Soccer',
+                image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop',
+                ctr: '+14.2% CTR'
+            },
+            {
+                id: '3',
+                title: 'Mine For Sammy — Underground Update',
+                game: 'Mine For Sammy',
+                image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
+                ctr: '+21.0% CTR'
+            },
+            {
+                id: '4',
+                title: 'Protect A Friend — Co-op Defense',
+                game: 'Protect A Friend',
+                image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=800&auto=format&fit=crop',
+                ctr: '+16.8% CTR'
+            },
+            {
+                id: '5',
+                title: 'Launch Your Rocket — Space Simulator',
+                game: 'Launch Your Rocket',
+                image: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=800&auto=format&fit=crop',
+                ctr: '+19.5% CTR'
+            },
+            {
+                id: '6',
+                title: 'Snatch A Seed — Plant & Escape',
+                game: 'Snatch A Seed',
+                image: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=800&auto=format&fit=crop',
+                ctr: '+15.1% CTR'
+            }
+        ];
+
+        // Initialize Work Grid
+        window.onload = function() {
+            renderWorkGrid();
+        };
+
+        function renderWorkGrid() {
+            const grid = document.getElementById('work-grid');
+            grid.innerHTML = projects.map(p => `
+                <div class="glass-card rounded-2xl overflow-hidden group cursor-pointer border border-gray-800 transition duration-300" onclick="openLightbox('${p.id}')">
+                    <div class="relative aspect-video bg-black/60 overflow-hidden">
+                        <img src="${p.image}" alt="${escapeHtml(p.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        
+                        <!-- CTR Badge -->
+                        <div class="absolute top-3 right-3 bg-orange-500/90 text-black font-extrabold font-mono text-[10px] px-2.5 py-1 rounded-full shadow-lg">
+                            ${p.ctr}
+                        </div>
+
+                        <!-- Hover Icon -->
+                        <div class="absolute inset-0 bg-orange-950/40 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                            <span class="w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center font-bold shadow-lg">
+                                <i class="fa-solid fa-expand"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4 space-y-1">
+                        <span class="text-[10px] text-orange-400 font-mono font-semibold uppercase">${escapeHtml(p.game)}</span>
+                        <h3 class="text-sm font-bold text-white truncate">${escapeHtml(p.title)}</h3>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Lightbox Handler
+        function openLightbox(id) {
+            const item = projects.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('lightbox-img').src = item.image;
+            document.getElementById('lightbox-title').textContent = item.title;
+            document.getElementById('lightbox-game').textContent = item.game + ' • Roblox Game Thumbnail';
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+        }
+
+        // Before/After Slider Control
+        function handleSplitSlider(val) {
+            document.getElementById('ba-overlay-box').style.width = val + '%';
+            document.getElementById('slider-handle').style.left = val + '%';
+        }
+
+        // Audio Player Dock Logic
+        let isPlaying = false;
+        const audio = document.getElementById('bg-audio');
+
+        function toggleAudio() {
+            const playBtn = document.getElementById('play-btn');
+            const visualizer = document.getElementById('visualizer');
+
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    visualizer.classList.remove('paused');
+                    showToast('Background audio playing', 'info');
+                }).catch(() => {
+                    showToast('Click play again to start background track', 'info');
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                visualizer.classList.add('paused');
+            }
+        }
+
+        function adjustVolume(val) {
+            audio.volume = val / 100;
+        }
+
+        // Offer Claim Trigger
+        function claimOffer(packName) {
+            showToast(`Claiming ${packName}! Copying Discord handle...`, 'success');
+            copyDiscord();
+        }
+
+        // Clipboard Helper
+        function copyDiscord() {
+            const tag = "@vryxlegfx";
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = tag;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            showToast('Copied Discord Tag: @vryxlegfx', 'success');
+        }
+
+        // Notification Toast Helper
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let icon = 'fa-circle-info text-orange-400';
+            if (type === 'success') icon = 'fa-circle-check text-emerald-400';
+
+            toast.className = 'pointer-events-auto flex items-center gap-3 p-3.5 bg-slate-900/95 border border-gray-700 rounded-2xl shadow-2xl text-xs text-white transition-all duration-300';
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} text-base"></i>
+                <span class="font-medium font-mono">${escapeHtml(msg)}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</body>
+</html>
